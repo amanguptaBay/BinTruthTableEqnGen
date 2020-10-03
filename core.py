@@ -35,6 +35,7 @@ def _values_tbl(tbl):
         for index, value in enumerate(tbl.get(col)):
             yield InputState(tbl.get(first)[index],col),value
 
+#TODO: Verify functioning for li having values with X in them too (not essential for functioning of program)
 def mintermInList(minterm, li):
     for l in li:
         breaked = False
