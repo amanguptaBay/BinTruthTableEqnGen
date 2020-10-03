@@ -35,6 +35,7 @@ def _values_tbl(tbl):
         for index, value in enumerate(tbl.get(col)):
             yield InputState(tbl.get(first)[index],col),value
 
+#TODO: Verify functioning for li having values with X in them too (not essential for functioning of program)
 def mintermInList(minterm, li):
     for l in li:
         breaked = False
@@ -68,3 +69,28 @@ def equationForSingleVariableTable(tbl):
     zeroes = list(map(mergeBinaryTerm,filter(lambda tup: tup[1]=="0",vals)))
     valid_reduced = set(map(lambda v:reduceMinterm(v,zeroes),valid))
     return list(map(BinaryTerm.split,valid_reduced))
+
+def expand_mutivar_table(muti_tbl):
+    #Takes the table and breaks it into data frames per variable
+    prevstate = ""
+    first_column = muti_tbl[muti_tbl.columns[0]]
+    first_column = {first_column.name: list(first_column)}
+
+    cols = collections.defaultdict(list)
+    for inp_state, value in _values_tbl(muti_tbl):
+        st = inp_state.State
+        if st != prevstate:
+            prevstate = st
+        cols[prevstate].append(value)
+    #TODO: Find a "cleaner" way of doing this, using the last value from the dict could be error-prone if they dont have a consistent amount of bits
+    input_bits = len(value)
+    #Each element is a dictionary of columns keyed by the input state
+    tables = [copy.deepcopy(cols) for i in range(input_bits)]
+    #Takes the columns and seperates them in terms of the variables they should operate on
+    for var_index in range(input_bits):
+        for key in tables[var_index]:
+            colstbl = tables[var_index]
+            colstbl[key] = list(map(lambda x: x[var_index],colstbl[key]))
+            
+    tables_dfs = [pd.DataFrame(dict(first_column, **tbl)) for tbl in tables]
+    return tables_dfs

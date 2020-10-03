@@ -2,9 +2,11 @@ import pandas, numpy
 import core
 
 def get_eqn_from_table(csv_file):
-    tbl = pandas.read_csv(csv_file, dtype="str")
-    return core.equationForSingleVariableTable(tbl)
-    
+    tbls = pandas.read_csv(csv_file, dtype="str")
+    out = []
+    for tbl in core.expand_mutivar_table(tbls):
+        out.append(core.equationForSingleVariableTable(tbl))
+    return out 
 def eqn_to_string(eqn):
     vars = ["state","in"]
     dims = len(eqn[0][0]),len(eqn[0][1])
@@ -23,8 +25,10 @@ def eqn_to_string(eqn):
 
 if __name__ == "__main__":
     print("Provide CSV file to get a equation")
+    print("Numbered from left-most bit being 0 and right-most being n-1")
     file_csv = input("CSV File Path: ")
-    eqn = get_eqn_from_table(file_csv)
+    eqns = get_eqn_from_table(file_csv)
     print("Minimized Solution:")
-    print(eqn_to_string(eqn))
+    for eqn in eqns:
+        print(eqn_to_string(eqn))
 
